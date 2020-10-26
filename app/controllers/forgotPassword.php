@@ -1,7 +1,7 @@
 <?php
 class forgotPassword extends Controller {
 
-    private $error_message;
+    private $error_message = '';
 
     public function index() {
 
@@ -16,14 +16,14 @@ class forgotPassword extends Controller {
             return;
         }
 
-        if(isset($_POST['resetPassword']) && $_POST['email'] != null) {
+        if(isset($_POST['edit-password'])) {
 
             //When on a live server use PHP send email
             //for demo we are simply printing a rest token to the screen
 
             $this->model('PasswordToken');
             
-            $token = $this->model->generatePasswordToken($_POST['email']);
+            $token = $this->model->generatePasswordToken($_POST['forgot-password-email']);
 
             if($token != null) {
 
@@ -31,10 +31,23 @@ class forgotPassword extends Controller {
 
                 return;
             }
+
+            $this->error_message = 'An account with that email address doesn\'t exist';
+        }
+
+        if(isset($_REQUEST['em'])) {
+
+            if(filter_var($_REQUEST['em'], FILTER_VALIDATE_EMAIL)) {
+
+                echo json_encode(['valid'=>true, 'message'=>'Email valid']);
+
+            }
             else {
 
-                $this->error_message = 'An account with that email address doesn\'t exist';
+                echo json_encode(['valid'=>false, 'message'=>'Email invalid']);
             }
+
+            return;
         }
 
         $this->view('forgotPassword', ['error_message' => $this->error_message]);

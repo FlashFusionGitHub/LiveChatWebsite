@@ -150,7 +150,6 @@ $("#username").keyup(function() {
     }
   });
 
-
   $("#create-account-form").submit(function() {
 
     if(firstname_valid == true && lastname_valid == true &&

@@ -20,9 +20,9 @@ class changePassword extends Controller {
 
             if($this->model->verifyPasswordResetToken($_GET['token'])) {
 
-                if(isset($_POST['edit_password'])) {
+                if(isset($_POST['edit-password'])) {
 
-                    if($_POST['newpassword'] != null) {
+                    if($_POST['password'] != null) {
                     
                         $userid = $this->model->verifyPasswordResetToken($_GET['token']);
 
@@ -30,7 +30,7 @@ class changePassword extends Controller {
                     
                         $this->model('User');
                     
-                        $this->model->changePassword($userid, $_POST['newpassword']);
+                        $this->model->changePassword($userid, $_POST['password']);
                     }
                 
                     header("Location: /home");
