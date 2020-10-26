@@ -133,7 +133,7 @@ body {
 }
 
 .dark-mode textarea.form-control {
-  background: #808080;
+  background: #5a5a5a;
 }
 
 .dark-mode ::placeholder {
@@ -212,6 +212,7 @@ body {
   display: block;
   padding: 16px;
   outline: 1px solid rgb(223, 223, 223);
+  max-height: 500px;
 }
 
 .dark-mode .chat {
@@ -296,4 +297,10 @@ ul.members-list {
   white-space: nowrap; 
   overflow: hidden;
   text-overflow: clip;
+}
+
+.message-btn {
+  background-color: orange;
+  height:40px;
+  width:75px;
 }
