@@ -57,7 +57,7 @@
             ?>
         </ul>
     </div>
-    <div class="active-chats-list col-3 px-1">
+    <div class="active-chats-list col-2 px-1">
         <h5>Active Chats <ion-icon name="chatbubbles-outline"></ion-icon></h5>
         <ul class="list-group">
             <li class="list-group-item">
@@ -81,11 +81,29 @@
             ?>
         </ul>
     </div>
-    <div class="col-6 px-1">
+    <div class="col-5 px-1">
         <h5>Chat <ion-icon name="chatbubble-ellipses-outline"></ion-icon></h5>
         <div class="chat">
             Beginning of chat.
         </div>
+    </div>
+    <div class="col-2 px-1">
+        <h5>Lobby Members</ion-icon></h5>
+        <ul class="members-list">
+        <?php
+            if(!empty($this->data["lobby_members"])) {
+
+                foreach($this->data["lobby_members"] as $lobby_member) {
+
+                    echo '<li class="members-list-item">' . $lobby_member['username'] . '</li>';
+                }
+            }
+            else {
+                echo '<li class="members-list-item">' . 'No members here' . '</li>';
+            }
+        ?>
+
+        </ul>
     </div>
 </div>
 You've reached the end of the chat

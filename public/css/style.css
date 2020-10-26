@@ -22,7 +22,7 @@ body {
 }
 
 .content {
-  min-width: 1100px;
+  min-width: 1250px;
   padding-top: 50px;
   padding-bottom: 50px;
   background: rgb(236, 236, 236);
@@ -272,4 +272,28 @@ input[type=file] {
   overflow: hidden;
   text-overflow: ellipsis;
   width: 250px;
+}
+
+ul.members-list {
+  color: #242424;
+  display: block;
+  padding: 0px;
+  font-weight: 300;
+  text-decoration: none;
+}
+
+.dark-mode .members-list {
+  color: #ffffff;
+}
+
+.members-list-item {
+  padding: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #838383;
+  list-style-type: none;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: clip;
 }
