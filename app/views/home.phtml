@@ -20,7 +20,7 @@
 
                     foreach($this->data["requests"] as $requester)
 
-                    echo '<form class="list-group-item" method="post">' .
+                        echo '<form class="list-group-item" method="post">' .
                         '<a href="/profile/user/' . $requester['name'] . '" class="link-unstyled">' .
                         '<h6>Request Pending</h6>' .
                         '<span class="image-cropper profile-img">' .
@@ -58,20 +58,25 @@
         </ul>
     </div>
     <div class="active-chats-list col-2 px-1">
-        <h5>Active Chats <ion-icon name="chatbubbles-outline"></ion-icon></h5>
+        <h5>Active Chats<ion-icon name="chatbubbles-outline"></ion-icon></h5>
         <ul class="list-group">
             <li class="list-group-item">
                 <div class="row justify-content-center">
-                    <button type="button" class="btn btn-sm btn-primary" onClick="location.href='/account'">Create New Chat</button>
+                    <form id="create-chat-form" method="post" class="row justify-content-center">
+                        <input class="chat-name-input" type="text" name="chat-group-name" placeholder="Chat Name"></input>
+                        <button type="submit" class="btn btn-sm btn-primary" name="create-chat-button">Create New Chat</button>
+                    </form>
                 </div>
             </li>
 
             <?php
-                if(!empty($this->data["active_chat"])) {
+                if(!empty($this->data["active_chats"])) {
                     
                     foreach($this->data["active_chats"] as $activeChat) {
 
-                        echo '<li class="list-group-item">' . $activeChat['name'] . '</li>';
+                        echo '<form method="post">' .
+                             '<button class="chat-group-btn" id="chat-group-btn" name="chat-group-btn" type="submit" value="' . $activeChat['id'] . '">' . $activeChat['chat_name'] . '</button>' . 
+                             '</form>';
                     }
                 }
                 else {
@@ -83,29 +88,59 @@
     </div>
     <div class="col-5 px-1">
         <h5>Chat <ion-icon name="chatbubble-ellipses-outline"></ion-icon></h5>
+
         <div class="chat">
-            Beginning of chat.
-        </div>
-        <div class="chat">
-            <form class="row mx-0">
-                <div class="col-10 mt-1 px-1">
-                    <textarea class="form-control" rows="3" placeholder="Remember, be nice and have fun!"></textarea>
-                </div>
-                <div class="col-2 mt-1 px-1">
-                    <button class="message-btn btn">Send</button>
-                </div>
-            </form>
-        </div>
+        <?php 
+            if($this->data['selected_chat']) {
+
+                //display chat messages
+
+                $user = new User('User', '');
+
+                foreach($this->data['selected_chat'] as $selected_chat) {
+
+                    echo  '<div class="username">' .
+                    '<b>' . $user->getUser($selected_chat['user_id'])[0]['username'] . '</b>' . 
+                    '</div>'.
+                    $selected_chat['message'] .
+                    '<div class="date-time-info">' .
+                        $selected_chat['posted'] .
+                    '</div>' .
+                    '<hr>';
+                }
+
+                //end of displaying chat messages
+
+                echo '</div>';
+            }
+            else {
+                echo 'There are no messages yet!';
+                echo '</div>';
+            }
+
+            echo '<div class="message-box">' .
+            '<form class="row mx-0">' .
+            '<div class="col-10 mt-1 px-1">' .
+            '<textarea class="form-control" rows="3" placeholder="Remember, be nice and have fun!"></textarea>' .
+            '</div>' .
+            '<div class="col-2 mt-1 px-1">' .
+            '<button class="message-btn btn">Send</button>' .
+            '</div>' .
+            '</form>' .
+            '</div>';
+        ?>
     </div>
     <div class="col-2 px-1">
         <h5>Lobby Members</ion-icon></h5>
         <ul class="members-list">
         <?php
-            if(!empty($this->data["lobby_members"])) {
+            if($this->data["selected_chat"]) {
 
-                foreach($this->data["lobby_members"] as $lobby_member) {
+                $user = new User('User', '');
 
-                    echo '<li class="members-list-item">' . $lobby_member['username'] . '</li>';
+                foreach($this->data["selected_chat"] as $lobby_member) {
+
+                    echo '<li class="members-list-item">' . $user->getUser($lobby_member['user_id'])[0]['username'] . '</li>';
                 }
             }
             else {
@@ -117,3 +152,14 @@
     </div>
 </div>
 You've reached the end of the chat
+
+
+<script>
+$('button[id="chat-group-btn"]').click(function() {
+    $.ajax ({
+    url: "/home/index/?cg="+ encodeURIComponent(this.value),
+    success: function(result) {
+        console.log(result);
+    }});
+});
+</script>

@@ -7,6 +7,8 @@ class home extends Controller {
     private $activeChats;
     private $requests;
 
+    private static $selected_chat;
+
     public function index() {
 
         $this->model('LoginToken');
@@ -89,6 +91,29 @@ class home extends Controller {
             }
         }
 
+        if(isset($_POST['create-chat-button'])) {
+
+            if($_POST['chat-group-name'] != null) {
+
+                $this->model('ChatGroup');
+
+                $this->model->createChatGroup($userid, $_POST['chat-group-name']);
+
+                //header('Location:' . $_SERVER['REQUEST_URI']);
+            }
+        }
+
+        if(isset($_POST['chat-group-btn'])) {
+
+            $this->model('Chat');
+
+            self::$selected_chat = $this->model->getChat($_POST['chat-group-btn']);
+        }
+
+        $this->model('ChatGroup');
+
+        $active_chats = $this->model->getChatGroup($userid);
+
         $this->model('User');
 
         $this->view('home',
@@ -97,7 +122,9 @@ class home extends Controller {
         'friends' => $this->friends,
         'requests' => $this->requests,
         'active_chats' => htmlspecialchars($this->activeChats),
-        'admin' => $this->model->getUser($userid)[0]['admin']]);
+        'admin' => $this->model->getUser($userid)[0]['admin'],
+        'active_chats' => $active_chats,
+        'selected_chat' => self::$selected_chat]);
 
         $this->view->render();
     }
