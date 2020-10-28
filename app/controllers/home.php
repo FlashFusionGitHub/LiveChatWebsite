@@ -7,7 +7,7 @@ class home extends Controller {
     private $activeChats;
     private $requests;
 
-    private static $selected_chat;
+    private $selected_chat;
 
     public function index() {
 
@@ -99,20 +99,57 @@ class home extends Controller {
 
                 $this->model->createChatGroup($userid, $_POST['chat-group-name']);
 
-                //header('Location:' . $_SERVER['REQUEST_URI']);
+                $group_chat = $this->model->getChatGroupByCreatorId($userid);
+
+                $this->model('ChatGroupMember');
+
+                $this->model->createChatGroupMember($group_chat[count($group_chat) - 1]['id'], $userid);
             }
         }
 
-        if(isset($_POST['chat-group-btn'])) {
+        if(isset($_REQUEST['group_chat'])) {
 
             $this->model('Chat');
 
-            self::$selected_chat = $this->model->getChat($_POST['chat-group-btn']);
+            $this->selected_chat = $this->model->getChat($_REQUEST['group_chat']);
+
+            $username_array = array();
+
+            $this->model('User');
+
+            foreach($this->selected_chat as $key => $sc) {
+                
+                $this->selected_chat[$key]['username'] = $this->model->getUser($sc['user_id'])[0]['username'];
+            }
+            
+            echo json_encode($this->selected_chat);
+
+            return;
         }
 
-        $this->model('ChatGroup');
+        /*
+        if(isset($_REQUEST['chat'])) {
 
-        $active_chats = $this->model->getChatGroup($userid);
+            $this->model('Chat');
+
+            $this->selected_chat = $this->model->getChat($_REQUEST['chat']);
+        }
+        
+        if(isset($_POST['chat-group-btn'])) {
+
+            header('Location: /home/index/activechat?chat=' . $_POST['chat-group-btn']);
+        }*/
+
+        if(isset($_POST['send-message-button'])) {
+
+            $this->model('Chat');
+
+            $this->model->createChat($_POST['send-message-button'], $userid, 'NAME', $_POST['message']);
+        }
+
+        $this->model('ChatGroupMember');
+
+        $active_chats = $this->model->getChatGroupByMemberId($userid);
 
         $this->model('User');
 
@@ -124,7 +161,7 @@ class home extends Controller {
         'active_chats' => htmlspecialchars($this->activeChats),
         'admin' => $this->model->getUser($userid)[0]['admin'],
         'active_chats' => $active_chats,
-        'selected_chat' => self::$selected_chat]);
+        'selected_chat' => $this->selected_chat]);
 
         $this->view->render();
     }

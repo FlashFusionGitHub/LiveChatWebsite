@@ -71,12 +71,12 @@
 
             <?php
                 if(!empty($this->data["active_chats"])) {
+
+                    $chat_group = new ChatGroup('ChatGroup', '');
                     
                     foreach($this->data["active_chats"] as $activeChat) {
 
-                        echo '<form method="post">' .
-                             '<button class="chat-group-btn" id="chat-group-btn" name="chat-group-btn" type="submit" value="' . $activeChat['id'] . '">' . $activeChat['chat_name'] . '</button>' . 
-                             '</form>';
+                        echo '<button class="chat-group-btn" id="chat-group-btn" name="chat-group-btn" value="' . $activeChat['group_id'] . '">' . $chat_group->getChatGroup($activeChat['group_id'])[0]['chat_name'] . '</button>';
                     }
                 }
                 else {
@@ -89,12 +89,14 @@
     <div class="col-5 px-1">
         <h5>Chat <ion-icon name="chatbubble-ellipses-outline"></ion-icon></h5>
 
-        <div class="chat">
+        <div class="chat" id="chat-window">
         <?php 
+            
             if($this->data['selected_chat']) {
 
                 //display chat messages
 
+                /*
                 $user = new User('User', '');
 
                 foreach($this->data['selected_chat'] as $selected_chat) {
@@ -109,6 +111,8 @@
                     '<hr>';
                 }
 
+                */
+
                 //end of displaying chat messages
 
                 echo '</div>';
@@ -117,18 +121,18 @@
                 echo 'There are no messages yet!';
                 echo '</div>';
             }
-
-            echo '<div class="message-box">' .
-            '<form class="row mx-0">' .
-            '<div class="col-10 mt-1 px-1">' .
-            '<textarea class="form-control" rows="3" placeholder="Remember, be nice and have fun!"></textarea>' .
-            '</div>' .
-            '<div class="col-2 mt-1 px-1">' .
-            '<button class="message-btn btn">Send</button>' .
-            '</div>' .
-            '</form>' .
-            '</div>';
+            
         ?>
+        <div class="message-box">
+            <form method="post" class="row mx-0">
+                <div class="col-10 mt-1 px-1">
+                    <textarea class="form-control" name="message" rows="3" placeholder="Remember, be nice and have fun!"></textarea>
+                </div>
+                <div class="col-2 mt-1 px-1">
+                    <button type="submit" name="send-message-button" id="send-message-button" value="" class="message-btn btn">Send</button>
+                </div>
+            </form>
+        </div>
     </div>
     <div class="col-2 px-1">
         <h5>Lobby Members</ion-icon></h5>
@@ -136,12 +140,17 @@
         <?php
             if($this->data["selected_chat"]) {
 
+                $chat_group_member = new ChatGroupMember('ChatGroupMember', '');
+
+                $members = $chat_group_member->getChatGroupMembers(20);
+
                 $user = new User('User', '');
 
-                foreach($this->data["selected_chat"] as $lobby_member) {
+                foreach($members as $lobby_member) {
 
-                    echo '<li class="members-list-item">' . $user->getUser($lobby_member['user_id'])[0]['username'] . '</li>';
+                    echo '<li class="members-list-item">' . $user->getUser($lobby_member['user_id'])[0]['username'] .'</li>';
                 }
+
             }
             else {
                 echo '<li class="members-list-item">' . 'No members here' . '</li>';
@@ -155,11 +164,45 @@ You've reached the end of the chat
 
 
 <script>
-$('button[id="chat-group-btn"]').click(function() {
-    $.ajax ({
-    url: "/home/index/?cg="+ encodeURIComponent(this.value),
-    success: function(result) {
-        console.log(result);
-    }});
-});
+    $('button[id="chat-group-btn"]').click(function() {
+
+        var id = this.value;
+
+        $.ajax ({
+            url: "/home/index/?group_chat="+ encodeURIComponent(this.value),
+            success: function(result) {
+
+                $("#send-message-button").attr('value', id);
+
+                var obj = JSON.parse(result);
+
+                console.log(obj);
+
+                if(obj[0] != null) {
+
+                    var chat_window = '';
+
+                    obj.forEach(myFunction);
+
+                    function myFunction(item, index) {
+                        
+                        chat_window += '<div class="username">' +
+                        '<b>' +  item.username + '</b>' +
+                        '</div>' +
+                        item.message +
+                        '<div class="date-time-info">' +
+                        item.posted +
+                        '</div>' +
+                        '<hr>'
+                    }
+
+                    $("#chat-window").html(chat_window);
+                }
+                else {
+                    $("#chat-window").html("There are no messages yet!");
+                }
+            }
+        });
+    });
 </script>
+

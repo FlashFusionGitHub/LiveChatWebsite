@@ -7,14 +7,21 @@ class ChatGroup extends Model {
         array(':creator_id'=>$user_id, ':chat_name'=>$chat_name));
     }
 
-
-    function getChatGroup($user_id) {
-        return $this->query('SELECT * FROM chat_group WHERE creator_id=:creator_id',
-        array(':creator_id'=>$user_id));
+    function getChatGroup($group_id) {
+        return $this->query('SELECT * FROM chat_group WHERE id=:id',
+        array(':id'=>$group_id));
     }
 
-    function deleteChatGroup() {
+    function getChatGroupByCreatorId($creator_id) {
+        return $this->query('SELECT * FROM chat_group WHERE creator_id=:creator_id',
+        array(':creator_id'=>$creator_id));
+    }
 
+
+    function deleteChatGroup($user_id) {
+
+        $this->query('DELETE FROM chat_group WHERE creator_id=:creator_id',
+        array(':creator_id'=>$user_id));
     }
 }
 
