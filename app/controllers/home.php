@@ -111,18 +111,72 @@ class home extends Controller {
 
             $this->model('Chat');
 
-            $this->selected_chat = $this->model->getChat($_REQUEST['group_chat']);
+            if($this->model->getChat($_REQUEST['group_chat'])) {
+                
+                $this->selected_chat = $this->model->getChat($_REQUEST['group_chat']);
 
-            $username_array = array();
+                $this->model('ChatGroupMember');
+
+                $group_members = $this->model->getChatGroupMembers($this->selected_chat[0]['chat_id']);
+
+                $username_array = array();
+
+                $this->model('User');
+
+                foreach($this->selected_chat as $key => $sc) {
+                
+                    $this->selected_chat[$key]['username'] = $this->model->getUser($sc['user_id'])[0]['username'];
+                }
+
+                foreach($group_members as $key => $gm) {
+
+                    $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+                }
+
+                $myArray = array();
+
+                $myArray['chat-window'] = $this->selected_chat;
+                $myArray['lobby-list'] = $group_members;
+            }
+            else {
+
+                $this->model('ChatGroupMember');
+
+                $group_members = $this->model->getChatGroupMembers($_REQUEST['group_chat']);
+
+                $username_array = array();
+
+                $this->model('User');
+
+                foreach($group_members as $key => $gm) {
+
+                    $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+                }
+
+                $myArray = array();
+
+                $myArray['chat-window'] = null;
+                $myArray['lobby-list'] = $group_members;
+            }
+
+            echo json_encode($myArray);
+
+            return;
+        }
+
+        if(isset($_REQUEST['message_form'])) {
+
+            $datetime_formatted = date_format(new DateTime(), 'Y-m-d H:i:s');
+
+            $message = json_decode($_REQUEST['message_form']);
+
+            $this->model('Chat');
+
+            $this->model->createChat($message->chat_id, $userid, htmlspecialchars($message->message));
 
             $this->model('User');
 
-            foreach($this->selected_chat as $key => $sc) {
-                
-                $this->selected_chat[$key]['username'] = $this->model->getUser($sc['user_id'])[0]['username'];
-            }
-            
-            echo json_encode($this->selected_chat);
+            echo json_encode(['username'=>$this->model->getUser($userid)[0]['username'], 'message'=>htmlspecialchars($message->message), 'posted'=>$datetime_formatted]);
 
             return;
         }
@@ -139,13 +193,16 @@ class home extends Controller {
 
             header('Location: /home/index/activechat?chat=' . $_POST['chat-group-btn']);
         }*/
+    
 
+        /*
         if(isset($_POST['send-message-button'])) {
 
             $this->model('Chat');
 
-            $this->model->createChat($_POST['send-message-button'], $userid, 'NAME', $_POST['message']);
+            $this->model->createChat($_POST['send-message-button'], $userid, $_POST['message']);
         }
+        */
 
         $this->model('ChatGroupMember');
 

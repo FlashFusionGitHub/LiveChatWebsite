@@ -2,12 +2,12 @@
 
 class Chat extends Model {
 
-    function createChat($chat_id, $user_id, $username, $message) {
+    function createChat($chat_id, $user_id, $message) {
 
         $datetime_formatted = date_format(new DateTime(), 'Y-m-d H:i:s');
 
-        $this->query('INSERT INTO chat VALUES(\'\', :chat_id, :user_id, :username, :message, :posted)',
-        array(':chat_id'=>$chat_id, ':user_id'=>$user_id, ':username'=>$username, ':message'=>$message, ':posted'=>$datetime_formatted));
+        $this->query('INSERT INTO chat VALUES(\'\', :chat_id, :user_id, :message, :posted)',
+        array(':chat_id'=>$chat_id, ':user_id'=>$user_id, ':message'=>$message, ':posted'=>$datetime_formatted));
     }
 
     function getChat($chat_group_id) {
