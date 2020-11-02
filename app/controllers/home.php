@@ -35,10 +35,12 @@ class home extends Controller {
                 if($friend['user1_id'] != $userid) {
                     $this->friends[$value]['name'] = htmlspecialchars($this->model->getUser($friend['user1_id'])[0]['username']);
                     $this->friends[$value]['image'] = htmlspecialchars($this->model->getUser($friend['user1_id'])[0]['profile_image']);
+                    $this->friends[$value]['user_id'] = $this->model->getUser($friend['user1_id'])[0]['id'];
                 }
                 else {
                     $this->friends[$value]['name'] = htmlspecialchars($this->model->getUser($friend['user2_id'])[0]['username']);
                     $this->friends[$value]['image'] = htmlspecialchars($this->model->getUser($friend['user2_id'])[0]['profile_image']);
+                    $this->friends[$value]['user_id'] = $this->model->getUser($friend['user2_id'])[0]['id'];
                 }
 
             }
@@ -109,6 +111,8 @@ class home extends Controller {
 
         if(isset($_REQUEST['group_chat'])) {
 
+            $group_members = null;
+
             $this->model('Chat');
 
             if($this->model->getChat($_REQUEST['group_chat'])) {
@@ -117,9 +121,7 @@ class home extends Controller {
 
                 $this->model('ChatGroupMember');
 
-                $group_members = $this->model->getChatGroupMembers($this->selected_chat[0]['chat_id']);
-
-                $username_array = array();
+                $group_members = $this->model->getChatGroupMembers($_REQUEST['group_chat']);
 
                 $this->model('User');
 
@@ -132,11 +134,6 @@ class home extends Controller {
 
                     $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
                 }
-
-                $myArray = array();
-
-                $myArray['chat-window'] = $this->selected_chat;
-                $myArray['lobby-list'] = $group_members;
             }
             else {
 
@@ -144,22 +141,15 @@ class home extends Controller {
 
                 $group_members = $this->model->getChatGroupMembers($_REQUEST['group_chat']);
 
-                $username_array = array();
-
                 $this->model('User');
 
                 foreach($group_members as $key => $gm) {
 
                     $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
                 }
-
-                $myArray = array();
-
-                $myArray['chat-window'] = null;
-                $myArray['lobby-list'] = $group_members;
             }
 
-            echo json_encode($myArray);
+            echo json_encode(['chat-window' => $this->selected_chat, 'lobby-list' => $group_members, 'requests' => $this->requests, 'friends' => $this->friends]);
 
             return;
         }
@@ -181,28 +171,151 @@ class home extends Controller {
             return;
         }
 
-        /*
-        if(isset($_REQUEST['chat'])) {
+        if(isset($_REQUEST['add_user_to_chat'])) {
+
+            $add_to_chat = json_decode($_REQUEST['add_user_to_chat']);
+
+            $this->model('ChatGroupMember');
+
+            $this->model->createChatGroupMember($add_to_chat->group_id, $add_to_chat->user_id);
+
+            $group_members = $this->model->getChatGroupMembers($add_to_chat->group_id);
+
+            $this->model('User');
+
+            foreach($group_members as $key => $gm) {
+
+                $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+            }
+
+            $myArray = array();
+
+            $myArray['lobby-list'] = $group_members;
+
+            echo json_encode($myArray);
+
+            return;
+        }
+
+        if(isset($_REQUEST['remove_user_from_chat'])) {
+
+            $remove_from_chat = json_decode($_REQUEST['remove_user_from_chat']);
+
+            $this->model('ChatGroupMember');
+
+            $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
+
+            $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
+
+            $this->model('User');
+
+            foreach($group_members as $key => $gm) {
+
+                $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+            }
+
+            $myArray = array();
+
+            $myArray['lobby-list'] = $group_members;
+
+            echo json_encode($myArray);
+
+            return;
+        }
+
+        if(isset($_REQUEST['leave-chat-group'])) {
+
+            $this->model('ChatGroup');
+
+            if($userid == $this->model->getChatGroup($_REQUEST['leave-chat-group'])[0]['creator_id']) {
+
+                $this->model('ChatGroupMember');
+
+                $this->model->removeChatGroupMembers($_REQUEST['leave-chat-group']);
+
+                $this->model('ChatGroup');
+
+                $this->model->deleteChatGroup($_REQUEST['leave-chat-group']);
+
+                $this->model('Chat');
+
+                $this->model->deleteChat($_REQUEST['leave-chat-group']);
+
+            }
+            else {
+
+                $this->model('ChatGroupMember');
+
+                $this->model->removeChatGroupMember($_REQUEST['leave-chat-group'], $userid);
+            }
+
+            echo json_encode(['requests' => $this->requests, 'friends' => $this->friends]);
+
+            return;
+        }
+
+        if(isset($_REQUEST['chat-groups-list'])) {
+
+            $this->model('ChatGroupMember');
+
+            $chat_groups = $this->model->getChatGroupByMemberId($userid);
+
+            $this->model('ChatGroup');
+
+            foreach($chat_groups as $key => $cg) {
+
+                $chat_groups[$key]['group_name'] = $this->model->getChatGroup($cg['group_id'])[0]['chat_name'];
+            }
+
+            echo json_encode($chat_groups);
+
+            return;
+        }
+
+        if(isset($_REQUEST['lobby-list'])) {
+
+            $this->model('ChatGroupMember');
+
+            $group_members = $this->model->getChatGroupMembers($_REQUEST['lobby-list']);
+
+            $this->model('User');
+
+            foreach($group_members as $key => $gm) {
+
+                $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+            }
+
+            echo json_encode($group_members);
+
+            return;
+        }
+
+        if(isset($_REQUEST['messages'])) {
 
             $this->model('Chat');
 
-            $this->selected_chat = $this->model->getChat($_REQUEST['chat']);
+            if($this->model->getChat($_REQUEST['messages'])) {
+                
+                $this->selected_chat = $this->model->getChat($_REQUEST['messages']);
+
+                $this->model('User');
+
+                foreach($this->selected_chat as $key => $sc) {
+                
+                    $this->selected_chat[$key]['username'] = $this->model->getUser($sc['user_id'])[0]['username'];
+                }
+
+                $myArray['chat-window'] = $this->selected_chat;
+            }
+            else {
+                $myArray['chat-window'] = null;
+
+            }
+
+            echo json_encode($myArray);
+
+            return;
         }
-        
-        if(isset($_POST['chat-group-btn'])) {
-
-            header('Location: /home/index/activechat?chat=' . $_POST['chat-group-btn']);
-        }*/
-    
-
-        /*
-        if(isset($_POST['send-message-button'])) {
-
-            $this->model('Chat');
-
-            $this->model->createChat($_POST['send-message-button'], $userid, $_POST['message']);
-        }
-        */
 
         $this->model('ChatGroupMember');
 

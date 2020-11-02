@@ -21,6 +21,12 @@ class Chat extends Model {
         return $this->query('SELECT * FROM chat WHERE user_id=:user_id',
         array(':user_id'=>$user_id));
     }
+
+    function deleteChat($chat_group_id) {
+        
+        return $this->query('DELETE FROM chat WHERE chat_id=:chat_id',
+        array(':chat_id'=>$chat_group_id));
+    }
 }
 
 ?>

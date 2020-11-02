@@ -348,10 +348,7 @@ textarea.form-control {
   border: 1px solid rgb(228, 228, 228);
 }
 
-.chat-group-btn {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+.chat-group-list-object {
   border: 0;
   background: none;
   box-shadow: none;
@@ -359,8 +356,6 @@ textarea.form-control {
   background: #ffffff;
   border-radius: 5px;
   margin-top: 8px;
-  padding-top: 5px;
-  padding-bottom: 5px;
   width: 100%;
   border: none;
   text-align: center;
@@ -368,12 +363,37 @@ textarea.form-control {
   cursor:pointer;
 }
 
-.dark-mode .chat-group-btn {
-  background: #535353;
-  color: rgb(228, 228, 228);
+.chat-group-button {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  background: #ffffff;
+  border-radius: 5px;
+  margin-top: 2px;
+  border: none;
+  text-align: center;
+  display: inline-block;
+  cursor:pointer;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  width: 150px;
+  max-width: 150px;
+}
+
+.chat-group-leave-button {
+  float: right;
+}
+
+.dark-mode .chat-group-button {
+  background: #535353;
+  color: rgb(228, 228, 228);
+}
+
+.dark-mode .chat-group-list-object {
+  background: #535353;
+  color: rgb(228, 228, 228);
 }
 
 div.username {

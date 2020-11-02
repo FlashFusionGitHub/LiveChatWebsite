@@ -12,14 +12,15 @@
 </h4>
 
 <div class="row profile-row mx-1">
+
     <div class="friends-list col-3 px-1">
         <h5>Friends <ion-icon name="people-circle-outline"></ion-icon></h5>
-        <ul class="list-group">
+        <ul class="list-group" id="friends-list">
             <?php
                 if(!empty($this->data["requests"])) {
 
-                    foreach($this->data["requests"] as $requester)
-
+                    foreach($this->data["requests"] as $requester) {
+            
                         echo '<form class="list-group-item" method="post">' .
                         '<a href="/profile/user/' . $requester['name'] . '" class="link-unstyled">' .
                         '<h6>Request Pending</h6>' .
@@ -32,13 +33,14 @@
                         '<button name="declineBtn" class="request-btn btn btn-sm btn-danger ml-2" type="submit" value="' . $requester['id'] .'">Decline</button>' .
                         '<button name="acceptBtn" class="request-btn btn btn-sm btn-success" type="sumbit" value="' . $requester['id'] . '">Accept</button>' .
                         '</form>';
+                    }
                 }
 
                 if(!empty($this->data["friends"])) {
 
                     foreach($this->data["friends"] as $friend) {
 
-                        echo '<li class="list-group-item">' .
+                        echo '<li class="list-group-item" method="post" name="add-to-chat-form" value="">' .
                         '<a href="/profile/user/' . $friend['name'] . '" class="link-unstyled">' .
                         '<span class="image-cropper profile-img">' .
                         '<img class="profile-pic" src="' . $friend['image']  . '" alt="' . $friend['image']  .' width="50" height="50">' .
@@ -58,17 +60,19 @@
         </ul>
     </div>
     <div class="active-chats-list col-2 px-1">
-        <h5>Active Chats<ion-icon name="chatbubbles-outline"></ion-icon></h5>
-        <ul class="list-group">
+        <h5>Active Chats <ion-icon name="chatbubbles-outline"></ion-icon></h5>
+        <ul class="list-group" id="create-chat-group">
             <li class="list-group-item">
                 <div class="row justify-content-center">
                     <form method="post" class="row justify-content-center">
                         <input class="chat-name-input" type="text" name="chat-group-name" placeholder="Chat Name"></input>
-                        <button type="submit" class="btn btn-sm btn-primary" name="create-chat-button">Create New Chat</button>
+                        <button onclick="hideButton(this)" type="submit" class="btn btn-sm btn-primary" name="create-chat-button">Create New Chat</button>
                     </form>
                 </div>
             </li>
+        </ul>
 
+        <ul class="list-group" id="active-chats-list">
             <?php
                 if(!empty($this->data["active_chats"])) {
 
@@ -76,7 +80,10 @@
                     
                     foreach($this->data["active_chats"] as $activeChat) {
 
-                        echo '<button class="chat-group-btn" id="chat-group-btn" name="chat-group-btn" value="' . $activeChat['group_id'] . '">' . $chat_group->getChatGroup($activeChat['group_id'])[0]['chat_name'] . '</button>';
+                        echo '<li class="chat-group-list-object">' .
+                             '<button class="chat-group-button" id="chat-group-btn" name="chat-group-btn" value="' . $activeChat['group_id'] . '"> ' . $chat_group->getChatGroup($activeChat['group_id'])[0]['chat_name'] . ' </button>' .
+                             '<button onclick="hideButton(this)" class="chat-group-leave-button btn btn-sm btn-warning" id="leave-chat-group-btn" value="' . $activeChat['group_id'] . '">Exit</button>' .
+                             '</li>';
                     }
                 }
                 else {
@@ -95,18 +102,15 @@
             '</div>';
         ?>
 
-        <div class="" id="message-box">
-
-        </div>
+        <div class="" id="message-box"></div>
 
     </div>
     <div class="col-2 px-1">
         <h5>Lobby Members</ion-icon></h5>
         <ul class="members-list" id="lobby-members-list">
-        <?php
-            echo '<li class="members-list-item">' . 'No members here' . '</li>';
-        ?>
-
+            <?php
+                echo '<li class="members-list-item">No members here</li>';
+            ?>
         </ul>
     </div>
 </div>
@@ -114,20 +118,103 @@ You've reached the end of the chat
 
 
 <script>
-    $('button[id="chat-group-btn"]').click(function() {
+    var group_id = '';
+    var myVar;
+    var loadGroups;
+    var loadLobby;
 
-        var id = this.value;
+    StartLoadingGroupChatsFunction();
+
+    $(document).on('click', 'button[id="add-to-chat"]', function() {
+
+        var add_to_chat_array = {
+            "user_id": this.value,
+            "group_id": group_id
+        }
 
         $.ajax ({
-            url: "/home/index/?group_chat="+ encodeURIComponent(this.value),
+            url: "/home/index/?add_user_to_chat="+ JSON.stringify(add_to_chat_array),
+
+            success: function(result) {
+
+                var lobby_list = '';
+
+                var lobby_members_list = JSON.parse(result)['lobby-list'];
+
+                lobby_members_list.forEach(lobbyMemberList);
+
+                function lobbyMemberList(item, index) {
+
+                    lobby_list += 
+                    '<li class="members-list-item">' +
+                    item.username +
+                    '</li>'
+                }
+
+                $("#lobby-members-list").html(lobby_list);
+            }      
+        });
+    });
+
+    $(document).on('click', 'button[id="remove-from-chat"]', function() {
+
+var remove_from_chat_array = {
+    "user_id": this.value,
+    "group_id": group_id
+}
+
+$.ajax ({
+    url: "/home/index/?remove_user_from_chat="+ JSON.stringify(remove_from_chat_array),
+
+    success: function(result) {
+
+        var lobby_list = '';
+
+        var lobby_members_list = JSON.parse(result)['lobby-list'];
+
+        lobby_members_list.forEach(lobbyMemberList);
+
+        function lobbyMemberList(item, index) {
+
+            lobby_list += 
+            '<li class="members-list-item">' +
+            item.username +
+            '</li>'
+        }
+
+        $("#lobby-members-list").html(lobby_list);
+    }      
+});
+});
+
+    $(document).on('click', 'button[id="chat-group-btn"]', function() {
+
+        myStopFunction();
+        myStartFunction();
+
+        StopLoadingGroupChatsFunction();
+        StartLoadingGroupChatsFunction();
+
+        StopLoadingLobbyMembersFunction();
+        StartLoadingLobbyMembersFunction();
+
+        group_id = this.value;
+
+        $.ajax ({
+            url: "/home/index/?group_chat="+ group_id,
             success: function(result) {
 
                 var chat_window = '';
+                var lobby_members = '';
+                var friends_list = '';
+                var friend_requests = '';
 
                 var obj = JSON.parse(result)['chat-window'];
                 var obj2 = JSON.parse(result)['lobby-list'];
+                var obj3 = JSON.parse(result)['friends'];
+                var obj4 = JSON.parse(result)['requests'];
 
-                var lobby_members = '';
+                console.log()
 
                 if(obj != null) {
 
@@ -176,40 +263,293 @@ You've reached the end of the chat
                         url : '/home/index/?message_form=' + JSON.stringify(formData)
                     }).done(function(data) {
 
-                        var json_data = JSON.parse(data);
-
                         $('textarea[name=message]').val('');
-
-                        $("#chat-window").html(
-                            chat_window += '<div class="username">' +
-                            '<b>' +  json_data['username'] + '</b>' +
-                            '</div>' +
-                            json_data['message'] +
-                            '<div class="date-time-info">' +
-                            json_data['posted'] +
-                            '</div>' +
-                            '<hr>'                            
-                        );
                     });
 
                     event.preventDefault();
                 });
 
-                $("#send-message-button").attr('value', id);
+                $("#send-message-button").attr('value', group_id);
 
                 obj2.forEach(myFunction2);
 
-                    function myFunction2(item, index) {
+                function myFunction2(item, index) {
 
-                        lobby_members += 
+                    lobby_members += 
+                    '<li class="members-list-item">' +
+                    item.username +
+                    '</li>'
+                }
+
+                    $("#lobby-members-list").html(lobby_members);
+
+                    if(obj4 != null) {
+                
+                    obj4.forEach(myFunction4);
+
+                        function myFunction4(item, index) {
+                            friend_requests += '<form class="list-group-item" method="post">' +
+                            '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                            '<h6>Request Pending</h6>' +
+                            '<span class="image-cropper profile-img">' +
+                            '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                            '</span>' +
+                            '<span class="profile-username">' + item.name + '</span>' +
+                            '</a>' +
+                            '<br><br>' +
+                            '<button name="declineBtn" class="request-btn btn btn-sm btn-danger ml-2" type="submit" value="' + item.id + '">Decline</button>' +
+                            '<button name="acceptBtn" class="request-btn btn btn-sm btn-success" type="sumbit" value="' + item.id + '">Accept</button>' +
+                            '</form>'
+                        }
+                    }
+                    
+                    if(obj3 != null) {
+
+                        obj3.forEach(myFunction3);
+
+                        function myFunction3(item, index) {
+
+                            friends_list += '<li class="list-group-item" method="post" name="add-to-chat-form" value="">' +
+                            '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                            '<span class="image-cropper profile-img">' +
+                            '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                            '</span>' +
+                            '<span class="profile-username">' +
+                            item.name +
+                            '</span>' +
+                            '</a>' +
+                            '<br>' +
+                            '<button name="add-to-chat" id="add-to-chat" class="request-btn btn btn-sm btn-primary ml-2" type="submit" value="' + item.user_id + '">Add To Chat</button>' +
+                            '</li>'
+                        }
+                    }
+
+                    if(obj3 != null && obj4 != null) {
+                        $("#friends-list").html(friend_requests += friends_list);
+                    }
+                    else if(obj3 == null && obj4 != null) {
+                        $("#friends-list").html(friend_requests += '<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                    }
+                    else if(obj3 != null && obj4 == null) {
+                        $("#friends-list").html(friends_list);
+                    }
+                    else if(obj3 == null && obj4 == null) {
+                        $("#friends-list").html('<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                    }
+                }
+            });
+        });
+
+
+        $(document).on('click', 'button[id="leave-chat-group-btn"]', function() {
+
+            myStopFunction();
+
+            StopLoadingLobbyMembersFunction();
+
+            $.ajax ({
+                url: "/home/index/?leave-chat-group="+ this.value,
+                success: function(result) {
+
+                    $("#lobby-members-list").html('<li class="members-list-item">No members here</li>');
+
+                    $("#chat-window").html('Open a lobby and start chatting');
+
+                    $("#message-box").html('');
+
+                    $("#message-box").attr('class', '');
+
+                    friend_requests_obj = JSON.parse(result)['requests'];
+
+                    var friend_requests = '';
+
+                    if(friend_requests_obj != null) {
+
+                        friend_requests_obj.forEach(friendRequestsFunction);
+
+                        function friendRequestsFunction(item, index) {
+                            friend_requests += '<form class="list-group-item" method="post">' +
+                            '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                            '<h6>Request Pending</h6>' +
+                            '<span class="image-cropper profile-img">' +
+                            '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                            '</span>' +
+                            '<span class="profile-username">' + item.name + '</span>' +
+                            '</a>' +
+                            '<br><br>' +
+                            '<button name="declineBtn" class="request-btn btn btn-sm btn-danger ml-2" type="submit" value="' + item.id + '">Decline</button>' +
+                            '<button name="acceptBtn" class="request-btn btn btn-sm btn-success" type="sumbit" value="' + item.id + '">Accept</button>' +
+                            '</form>';
+                        }
+                    }
+
+                    friends_list_obj = JSON.parse(result)['friends'];
+
+                    var friends_list = '';
+
+                    if(friends_list_obj != null) {
+
+                        friends_list_obj.forEach(friendsListFunction);
+
+                        function friendsListFunction(item, index) {
+
+                            friends_list += '<li class="list-group-item" method="post" name="add-to-chat-form" value="">' +
+                            '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                            '<span class="image-cropper profile-img">' +
+                            '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                            '</span>' +
+                            '<span class="profile-username">' +
+                            item.name +
+                            '</span>' +
+                            '</a>' +
+                            '<br>' +
+                            '</li>'
+                        }
+                    }
+
+                    if(friends_list_obj != null && friend_requests_obj != null) {
+                        $("#friends-list").html(friend_requests += friends_list);
+                    }
+                    else if(friends_list_obj == null && friend_requests_obj != null) {
+                        $("#friends-list").html(friend_requests += '<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                    }
+                    else if(friends_list_obj != null && friend_requests_obj == null) {
+                        $("#friends-list").html(friends_list);
+                    }
+                    else if(friends_list_obj == null && friend_requests_obj == null) {
+                        $("#friends-list").html('<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                    }
+                }
+            });
+        });
+
+        function loadLobbyMembers() {
+            $.ajax({
+                url: "/home/index/?lobby-list=" + encodeURIComponent(group_id),
+                success: function(result) {
+
+                    var lobby_list_obj = JSON.parse(result);
+
+                    console.log(lobby_list_obj);
+
+                    lobby_list = '';
+
+                    lobby_list_obj.forEach(myFunction2);
+
+                    function myFunction2(item, index) {
+                        lobby_list += 
                         '<li class="members-list-item">' +
                         item.username +
                         '</li>'
                     }
 
-                    $("#lobby-members-list").html(lobby_members);
+                    $("#lobby-members-list").html(lobby_list);
                 }
             });
-        });
+        }
+
+        function loadChatWindow() {
+            $.ajax({
+
+                url: "/home/index/?messages="+ encodeURIComponent(group_id),
+                success: function(result) {
+
+                    var chat_window = '';
+
+                    var obj = JSON.parse(result)['chat-window'];
+
+                    if(obj != null) {
+                    
+                        obj.forEach(myFunction);
+                    
+                        function myFunction(item, index) {
+                        
+                            chat_window += '<div class="username">' +
+                            '<b>' +  item.username + '</b>' +
+                            '</div>' +
+                            item.message +
+                            '<div class="date-time-info">' +
+                            item.posted +
+                            '</div>' +
+                            '<hr>'
+                        }
+                    
+                        $("#chat-window").html(chat_window);
+                    }
+                    else {
+                    
+                        $("#chat-window").html('There are no messages yet!');
+                    }
+                }    
+            });
+        }
+
+        var loadGroupChatsObj;
+        var previousLoadGroupChatsObj = 0;
+
+        function loadGroupChats() {
+            $.ajax({
+                url: "/home/index/?chat-groups-list=1",
+                success: function(result) {
+
+                    loadGroupChatsObj = JSON.parse(result);
+
+                    if(loadGroupChatsObj.length == previousLoadGroupChatsObj.length)
+                        return;
+
+                    var chat_groups_list = '';
+
+                    if(loadGroupChatsObj.length > 0) {
+                        
+                        loadGroupChatsObj.forEach(myFunction);
+                        
+                        function myFunction(item, index) {
+
+                            chat_groups_list += '<li class="chat-group-list-object">' +
+                            '<button class="chat-group-button" id="chat-group-btn" name="chat-group-btn" value="' + item.group_id + '"> ' + item.group_name + ' </button>' +
+                            '<button onclick="hideButton(this)" class="chat-group-leave-button btn btn-sm btn-warning" id="leave-chat-group-btn" value="' + item.group_id + '">Exit</button>' +
+                            '</li>';
+                        }
+
+                        $("#active-chats-list").html(chat_groups_list);
+                    }
+                    else {
+                        $("#active-chats-list").html(
+                            '<li class="list-group-item">No active chats</li>'
+                        );
+                    }
+
+                    previousLoadGroupChatsObj = loadGroupChatsObj;
+                }
+            });
+        }
+
+        function StopLoadingLobbyMembersFunction() {
+            clearInterval(loadLobby);
+        }
+
+        function StartLoadingLobbyMembersFunction() {
+            loadLobby = setInterval(loadLobbyMembers, 1000);
+        }
+
+        function StopLoadingGroupChatsFunction() {
+            clearInterval(loadGroups);
+        }
+
+        function StartLoadingGroupChatsFunction() {
+            loadGroups = setInterval(loadGroupChats, 1000);
+        }
+
+        function myStopFunction() {
+            clearInterval(myVar);
+        }
+
+        function myStartFunction() {
+            myVar = setInterval(loadChatWindow, 1000);
+        }
+
+        function hideButton(input) {
+            input.style.display = "none"
+        }
 </script>
 

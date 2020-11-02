@@ -9,7 +9,20 @@ class ChatGroupMember extends Model {
         array(':group_id'=>$group_id, ':user_id'=>$user_id));
     }
 
+    function removeChatGroupMember($group_id, $user_id) {
+
+        $this->query('DELETE FROM chat_group_members WHERE group_id=:group_id AND user_id=:user_id',
+        array(':group_id'=>$group_id, ':user_id'=>$user_id));
+    }
+
+    function removeChatGroupMembers($group_id) {
+
+        $this->query('DELETE FROM chat_group_members WHERE group_id=:group_id',
+        array(':group_id'=>$group_id));
+    }
+
     function getChatGroupMembers($group_id) {
+
         return $this->query('SELECT * FROM chat_group_members WHERE group_id=:group_id',
         array(':group_id'=>$group_id));
     }

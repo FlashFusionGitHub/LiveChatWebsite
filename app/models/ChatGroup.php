@@ -18,10 +18,10 @@ class ChatGroup extends Model {
     }
 
 
-    function deleteChatGroup($user_id) {
+    function deleteChatGroup($group_id) {
 
-        $this->query('DELETE FROM chat_group WHERE creator_id=:creator_id',
-        array(':creator_id'=>$user_id));
+        $this->query('DELETE FROM chat_group WHERE id=:id',
+        array(':id'=>$group_id));
     }
 }
 
