@@ -1,9 +1,6 @@
 <?php
 class account extends Controller {
 
-    //access token: 6ae957e9f426bdcbfc0f04e2c5cbaabf6eae716f
-    //refresh token: b29f68e457d1d91c34094bdd14809d0aa25f2446
-
     private $user;
 
     public function index() {
