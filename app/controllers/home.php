@@ -274,18 +274,38 @@ class home extends Controller {
 
         if(isset($_REQUEST['lobby-list'])) {
 
+            $creator = false;
+
+            $this->model('ChatGroup');
+
+            $group_chat = $this->model->getChatGroup($_REQUEST['lobby-list']);
+
             $this->model('ChatGroupMember');
 
-            $group_members = $this->model->getChatGroupMembers($_REQUEST['lobby-list']);
+            $group_members = $this->model->getChatGroupMembers($_REQUEST['lobby-list']);            
 
             $this->model('User');
 
             foreach($group_members as $key => $gm) {
 
                 $group_members[$key]['username'] = $this->model->getUser($gm['user_id'])[0]['username'];
+
+                if($gm['user_id'] == $group_chat[0]['creator_id'])
+                {
+                    $group_members[$key]['creator'] = true;
+                }
+                else 
+                {
+                    $group_members[$key]['creator'] = false;
+                }
             }
 
-            echo json_encode($group_members);
+            if($userid == $group_chat[0]['creator_id'])
+                $creator = true;
+            else 
+                $creator = false;
+
+            echo json_encode(['lobby_members' => $group_members, 'lobby_creator' => $creator]);
 
             return;
         }

@@ -137,12 +137,13 @@ You've reached the end of the chat
 
             success: function(result) {
 
-                var lobby_list = '';
+                //var lobby_list = '';
 
-                var lobby_members_list = JSON.parse(result)['lobby-list'];
+                //var lobby_members_list = JSON.parse(result)['lobby-list'];
 
-                lobby_members_list.forEach(lobbyMemberList);
+                //lobby_members_list.forEach(lobbyMemberList);
 
+                /*
                 function lobbyMemberList(item, index) {
 
                     lobby_list += 
@@ -152,6 +153,7 @@ You've reached the end of the chat
                 }
 
                 $("#lobby-members-list").html(lobby_list);
+                */
             }      
         });
     });
@@ -205,16 +207,15 @@ $.ajax ({
             success: function(result) {
 
                 var chat_window = '';
-                var lobby_members = '';
-                var friends_list = '';
+                //var lobby_members = '';
+                var friends_list = ''; button = '';
                 var friend_requests = '';
 
                 var obj = JSON.parse(result)['chat-window'];
-                var obj2 = JSON.parse(result)['lobby-list'];
+                //var obj2 = JSON.parse(result)['lobby-list'];
                 var obj3 = JSON.parse(result)['friends'];
                 var obj4 = JSON.parse(result)['requests'];
-
-                console.log()
+                
 
                 if(obj != null) {
 
@@ -271,6 +272,7 @@ $.ajax ({
 
                 $("#send-message-button").attr('value', group_id);
 
+                /*
                 obj2.forEach(myFunction2);
 
                 function myFunction2(item, index) {
@@ -282,6 +284,8 @@ $.ajax ({
                 }
 
                     $("#lobby-members-list").html(lobby_members);
+
+                    */
 
                     if(obj4 != null) {
                 
@@ -318,9 +322,13 @@ $.ajax ({
                             item.name +
                             '</span>' +
                             '</a>' +
-                            '<br>' +
-                            '<button name="add-to-chat" id="add-to-chat" class="request-btn btn btn-sm btn-primary ml-2" type="submit" value="' + item.user_id + '">Add To Chat</button>' +
-                            '</li>'
+                            '<br>';
+
+                            if(1 == 1) {
+                                button = '<button name="add-to-chat" id="add-to-chat" class="request-btn btn btn-sm btn-primary ml-2" type="submit" value="' + item.user_id + '">Add To Chat</button>';
+                            }
+
+                            friends_list += button += '</li>';
                         }
                     }
 
@@ -343,13 +351,11 @@ $.ajax ({
 
         $(document).on('click', 'button[id="leave-chat-group-btn"]', function() {
 
-            myStopFunction();
-
-            StopLoadingLobbyMembersFunction();
-
             $.ajax ({
                 url: "/home/index/?leave-chat-group="+ this.value,
                 success: function(result) {
+
+                    StopLoadingLobbyMembersFunction();
 
                     $("#lobby-members-list").html('<li class="members-list-item">No members here</li>');
 
@@ -424,23 +430,39 @@ $.ajax ({
         });
 
         function loadLobbyMembers() {
+
             $.ajax({
                 url: "/home/index/?lobby-list=" + encodeURIComponent(group_id),
                 success: function(result) {
 
-                    var lobby_list_obj = JSON.parse(result);
+                    var lobby_list_obj = JSON.parse(result)['lobby_members'];
+                    var creator_obj = JSON.parse(result)['lobby_creator'];;
 
                     console.log(lobby_list_obj);
 
                     lobby_list = '';
+                    lobby_button = '';
 
                     lobby_list_obj.forEach(myFunction2);
 
                     function myFunction2(item, index) {
                         lobby_list += 
                         '<li class="members-list-item">' +
-                        item.username +
-                        '</li>'
+                        '<div class="lobby-member-name">' + item.username + '</div>';
+
+                        if(item.creator != true) {
+                            if(creator_obj == true) {
+                                lobby_button = '<button onclick="hideButton(this)" class="remove-from-group-button btn btn-sm btn-danger" id="remove-from-chat" value="' + item.user_id +'">Boot</button>';
+                            }
+                            else {
+                                lobby_button = '';
+                            }
+                        }
+                        else {
+                            lobby_button = '<span class="badge badge-success">Owner</span>';
+                        }
+  
+                        lobby_list += lobby_button += '</li>';
                     }
 
                     $("#lobby-members-list").html(lobby_list);
@@ -493,6 +515,20 @@ $.ajax ({
                 success: function(result) {
 
                     loadGroupChatsObj = JSON.parse(result);
+
+                    /*
+                    if($.inArray(group_id, loadGroupChatsObj) != -1) {
+                        StopLoadingLobbyMembersFunction();
+
+                        $("#lobby-members-list").html('<li class="members-list-item">No members here</li>');
+
+                        $("#chat-window").html('Open a lobby and start chatting');
+
+                        $("#message-box").html('');
+
+                        $("#message-box").attr('class', '');
+                    }
+                    */
 
                     if(loadGroupChatsObj.length == previousLoadGroupChatsObj.length)
                         return;

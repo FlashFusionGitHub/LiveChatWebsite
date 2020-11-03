@@ -382,6 +382,23 @@ textarea.form-control {
   max-width: 150px;
 }
 
+div.lobby-member-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  width: 120px;
+  max-width: 120px;
+  vertical-align:middle;
+}
+
+.remove-from-group-button {
+  padding:0px;
+  padding-left:5px;
+  padding-right:5px;
+  float: right;
+}
+
 .chat-group-leave-button {
   float: right;
 }
