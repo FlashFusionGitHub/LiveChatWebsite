@@ -14,3 +14,5 @@ set_include_path(get_include_path() . PATH_SEPARATOR . implode(PATH_SEPARATOR, $
 spl_autoload_register('spl_autoload', false);
 
 $app = new App;
+
+?>

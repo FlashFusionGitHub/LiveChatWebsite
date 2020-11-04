@@ -1,6 +1,9 @@
 <?php
-class account extends Controller {
 
+require_once("access_tokens.php");
+
+class account extends Controller {
+    
     private $user;
 
     public function index() {
@@ -28,7 +31,7 @@ class account extends Controller {
 
             $options = array('http' => array(
                 'method' => "POST",
-                'header' => "Authorization: Bearer 6ae957e9f426bdcbfc0f04e2c5cbaabf6eae716f\n" .
+                'header' => "Authorization: Bearer " .ACCESS_TOKEN. "\n" .
                 "Content-Type: application/x-www-form-urlencode",
                 'content' => $file
             ));
