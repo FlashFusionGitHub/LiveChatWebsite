@@ -18,9 +18,6 @@ class forgotPassword extends Controller {
 
         if(isset($_POST['edit-password'])) {
 
-            //When on a live server use PHP send email
-            //for demo we are simply printing a rest token to the screen
-
             $this->model('PasswordToken');
             
             $token = $this->model->generatePasswordToken($_POST['forgot-password-email']);
