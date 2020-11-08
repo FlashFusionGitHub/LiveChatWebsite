@@ -8,8 +8,15 @@ class ChatGroup extends Model {
     }
 
     function getChatGroup($group_id) {
-        return $this->query('SELECT * FROM chat_group WHERE id=:id',
-        array(':id'=>$group_id));
+
+        if($this->query('SELECT * FROM chat_group WHERE id=:id', array(':id'=>$group_id))) {
+
+            return $this->query('SELECT * FROM chat_group WHERE id=:id',array(':id'=>$group_id));
+        }
+        else {
+            
+            return false;
+        }
     }
 
     function getChatGroupByCreatorId($creator_id) {

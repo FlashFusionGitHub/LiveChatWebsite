@@ -27,7 +27,7 @@ class Friend extends Model {
 
         if($this->query('SELECT * FROM friends WHERE (user1_id=:user1_id) OR (user2_id=:user2_id)', array(':user1_id'=>$user_id, ':user2_id'=>$user_id))) {
             
-            return ($this->query('SELECT * FROM friends WHERE (user1_id=:user1_id) OR (user2_id=:user2_id)',
+            return ($this->query('SELECT * FROM friends WHERE (user1_id=:user1_id) OR (user2_id=:user2_id) ORDER BY id ASC',
             array(':user1_id'=>$user_id, ':user2_id'=>$user_id)));
         }
 

@@ -11,9 +11,15 @@ class Chat extends Model {
     }
 
     function getChat($chat_group_id) {
-        
-        return $this->query('SELECT * FROM chat WHERE chat_id=:chat_id',
-        array(':chat_id'=>$chat_group_id));
+
+        if($this->query('SELECT * FROM chat WHERE chat_id=:chat_id', array(':chat_id'=>$chat_group_id))) {
+
+            return $this->query('SELECT * FROM chat WHERE chat_id=:chat_id', array(':chat_id'=>$chat_group_id));
+        }
+        else {
+
+            return false;
+        }
     }
 
     function getChatByUserId($user_id) {
