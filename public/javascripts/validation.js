@@ -104,7 +104,16 @@ $("#username").keyup(function() {
   
     $("#password").attr('class', 'form-control is-invalid');
     $("#password-feedback").attr('class', 'invalid-feedback');
-  
+
+    if(repeat_password_valid == true) {
+
+      $("#repeat-password").attr('class', 'form-control is-invalid');
+      $("#repeat-password-feedback").attr('class', 'invalid-feedback');
+      $("#repeat-password-feedback").html('Re-enter Password');
+
+      repeat_password_valid = false;
+    }
+
     if(this.value.length == 0) {
       $("#password-feedback").html('Enter a password');
 
@@ -116,6 +125,7 @@ $("#username").keyup(function() {
       password_valid = false;
     }
     else if(this.value.length >= 6 && this.value.length < 32) {
+
       $("#password").attr('class', 'form-control is-valid')
       $("#password-feedback").attr('class', 'valid-feedback');
       $("#password-feedback").html('Password valid');
