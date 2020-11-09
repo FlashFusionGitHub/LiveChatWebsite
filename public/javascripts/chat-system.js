@@ -200,11 +200,13 @@ function loadFriendsList() {
     $.ajax({
         url: "/home/index/?friends-list=" + group_id,
         success: function(result) {
+
             friend_requests = '';
             friends_list = '';
             friendsListObj = JSON.parse(result)["friends"];
             friendsRequestsObj = JSON.parse(result)["requests"];
             chatGroupMemberObj = JSON.parse(result)["group_member"];
+
             if(friendsRequestsObj != null) {
                 friendsRequestsObj.forEach(myFunction4);
                 function myFunction4(item, index) {
@@ -325,7 +327,7 @@ function StopLoadingFriendsListFunction() {
     clearInterval(loadFriends);
 }
 function StartLoadingFriendsListFunction() {
-    loadFriends = setInterval(loadFriendsList, 5000);
+    loadFriends = setInterval(loadFriendsList, 1000);
 }
 function StopLoadingLobbyMembersFunction() {
     clearInterval(loadLobby);

@@ -278,30 +278,41 @@ class home extends Controller {
 
             $group_member = $this->model->getChatGroupMember($userid, $_REQUEST['friends-list']);
 
-            $this->model('ChatGroupMember');
-
             $group_members = $this->model->getChatGroupMembers($_REQUEST['friends-list']);
 
-            foreach($this->friends as $key => $friend) {
+            $this->model('Friend');
 
-                foreach($group_members as $val => $gm) {
+            $friends = $this->model->getAllFriends($userid);
 
-                    if($friend['user_id'] == $gm['user_id']) {
+            if($friends != null) {
 
-                        $this->friends[$key]["joined"] = true;
-                        break;
-                    }
+                foreach($this->friends as $key => $friend) {
 
-                    else {
+                    foreach($group_members as $val => $gm) {
 
-                        $this->friends[$key]["joined"] = false;
+                        if($friend['user_id'] == $gm['user_id']) {
+
+                            $this->friends[$key]["joined"] = true;
+                            break;
+                        }
+
+                        else {
+
+                            $this->friends[$key]["joined"] = false;
+                        }
                     }
                 }
+
+                echo json_encode(["requests" => $this->requests, "friends" => $this->friends, "group" => $group_members, "group_member" => $group_member]);
+
+                return;
             }
+            else {
 
-            echo json_encode(["requests" => $this->requests, "friends" => $this->friends, "group" => $group_members, "group_member" => $group_member]);
+                echo json_encode(["requests" => $this->requests, "friends" => null, "group" => $group_members, "group_member" => $group_member]);
 
-            return;
+                return;
+            }
         }
 
         if(isset($_REQUEST['lobby-list'])) {
