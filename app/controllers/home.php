@@ -175,52 +175,77 @@ class home extends Controller {
 
             $add_to_chat = json_decode($_REQUEST['add_user_to_chat']);
 
+            //Am I friends with the user im inviting, am I a member of this chat group
+
+            $this->model('Friend');
+
+            $friend = $this->model->alreadyFriends($userid, $add_to_chat->user_id);
+
             $this->model('ChatGroupMember');
 
-            $this->model->createChatGroupMember($add_to_chat->group_id, $add_to_chat->user_id);
+            $member = $this->model->getChatGroupMember($userid, $add_to_chat->group_id);
 
-            $group_members = $this->model->getChatGroupMembers($add_to_chat->group_id);
+            if($friend == true && $member == true) {
 
-            $this->model('User');
+                $this->model->createChatGroupMember($add_to_chat->group_id, $add_to_chat->user_id);
 
-            foreach($group_members as $key => $gm) {
+                $group_members = $this->model->getChatGroupMembers($add_to_chat->group_id);
 
-                $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                $this->model('User');
+
+                foreach($group_members as $key => $gm) {
+
+                    $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                }
+
+                echo json_encode(["lobby-list" => $group_members]);
+
+                return;
             }
+            else {
 
-            $myArray = array();
+                echo json_encode(["lobby-list" => null]);
 
-            $myArray['lobby-list'] = $group_members;
-
-            echo json_encode($myArray);
-
-            return;
+                return;
+            }
         }
 
         if(isset($_REQUEST['remove_user_from_chat'])) {
 
             $remove_from_chat = json_decode($_REQUEST['remove_user_from_chat']);
 
+            $this->model('Friend');
+
+            $friend = $this->model->alreadyFriends($userid, $remove_from_chat->user_id);
+
             $this->model('ChatGroupMember');
 
-            $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
+            $member = $this->model->getChatGroupMember($userid, $remove_from_chat->group_id);
 
-            $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
+            if($friend == true && $member == true) {
 
-            $this->model('User');
+                $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
 
-            foreach($group_members as $key => $gm) {
+                $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
 
-                $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                $this->model('User');
+
+                foreach($group_members as $key => $gm) {
+
+                    $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                }
+
+                echo json_encode(["lobby-list" => $group_members]);
+
+                return;
+            }
+            else {
+
+                echo json_encode(["lobby-list" => null]);
+
+                return;
             }
 
-            $myArray = array();
-
-            $myArray['lobby-list'] = $group_members;
-
-            echo json_encode($myArray);
-
-            return;
         }
 
         if(isset($_REQUEST['leave-chat-group'])) {

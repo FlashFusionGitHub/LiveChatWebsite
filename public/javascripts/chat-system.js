@@ -17,7 +17,11 @@ $(document).on('click', 'button[id="add-to-chat"]', function() {
     $.ajax ({
         url: "/home/index/?add_user_to_chat="+ JSON.stringify(add_to_chat_array),
         success: function(result) {
-            loadFriendsList();
+
+            if(result != null) {
+
+                loadFriendsList();
+            }
         }
     });
 });
@@ -30,17 +34,20 @@ $(document).on('click', 'button[id="remove-from-chat"]', function() {
     $.ajax ({
         url: "/home/index/?remove_user_from_chat="+ JSON.stringify(remove_from_chat_array),
         success: function(result) {
-            var lobby_list = '';
-            var lobby_members_list = JSON.parse(result)["lobby-list"];
-            lobby_members_list.forEach(lobbyMemberList);
-            function lobbyMemberList(item, index) {
-                lobby_list += 
-                '<li class="members-list-item">' +
-                item.username +
-                '</li>'
+
+            if(result != null) {
+                var lobby_list = '';
+                var lobby_members_list = JSON.parse(result)["lobby-list"];
+                lobby_members_list.forEach(lobbyMemberList);
+                function lobbyMemberList(item, index) {
+                    lobby_list += 
+                    '<li class="members-list-item">' +
+                    item.username +
+                    '</li>'
+                }
+                $("#lobby-members-list").html(lobby_list);
+                loadFriendsList();
             }
-            $("#lobby-members-list").html(lobby_list);
-            loadFriendsList();
         }      
     });
 });
@@ -103,7 +110,7 @@ $(document).on('click', 'button[id="chat-group-btn"]', function() {
             event.preventDefault();
         });
         $("#send-message-button").attr('value', group_id);
-        loadFriendsList();
+            loadFriendsList();
         }
     });
 });
@@ -254,6 +261,7 @@ function loadFriendsList() {
                 }
                 $("#friends-list").html(friends_list);
             }
+
             if(friendsListObj != null && friendsRequestsObj != null) {
                 $("#friends-list").html(friend_requests += friends_list);
             }
