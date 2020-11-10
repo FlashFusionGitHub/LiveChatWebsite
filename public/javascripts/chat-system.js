@@ -60,6 +60,7 @@ $(document).on('click', 'button[id="chat-group-btn"]', function() {
     StartLoadingLobbyMembersFunction();
     group_id = this.value;
     reloadLobbyList = true;
+    reloadFriendsList = true;
 
     $.ajax ({
     url: "/home/index/?group_chat="+ group_id,
@@ -199,9 +200,12 @@ function loadGroupChats() {
     });
 }
 
-friendsListObj = null;
-friendsRequestsObj = null;
-button = '';
+var friendsListObj = null;
+var friendsRequestsObj = null;
+var button = '';
+var previousFriendsListObj = [];
+var previousFriendsRequestsObj = [];
+var reloadFriendsList;
 
 function loadFriendsList() {
     $.ajax({
@@ -214,65 +218,89 @@ function loadFriendsList() {
             friendsRequestsObj = JSON.parse(result)["requests"];
             chatGroupMemberObj = JSON.parse(result)["group_member"];
 
-            if(friendsRequestsObj != null) {
-                friendsRequestsObj.forEach(myFunction4);
-                function myFunction4(item, index) {
-                    friend_requests += '<form class="list-group-item" method="post">' +
-                    '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
-                    '<h6>Request Pending</h6>' +
-                    '<span class="image-cropper profile-img">' +
-                    '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
-                    '</span>' +
-                    '<span class="profile-username">' + item.name + '</span>' +
-                    '</a>' +
-                    '<br><br>' +
-                    '<button onclick="hideButton(this)" name="declineBtn" class="request-btn btn btn-sm btn-danger ml-2" type="submit" value="' + item.id + '">Decline</button>' +
-                    '<button onclick="hideButton(this)" name="acceptBtn" class="request-btn btn btn-sm btn-success" type="sumbit" value="' + item.id + '">Accept</button>' +
-                    '</form>'
+            if(friendsListObj != null) {
+                if(previousFriendsListObj.length != friendsListObj.length) {
+                    reloadFriendsList = true;
                 }
             }
-            if(friendsListObj != null) {
-                friendsListObj.forEach(myFunction3);
-                function myFunction3(item, index) {
-                
-                    friends_list += '<li class="list-group-item" method="post" name="add-to-chat-form" value="">' +
-                    '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
-                    '<span class="image-cropper profile-img">' +
-                    '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
-                    '</span>' +
-                    '<span class="profile-username">' +
-                    item.name +
-                    '</span>' +
-                    '</a>' +
-                    '<br>';
-                    if(chatGroupMemberObj != false) {
-                        if(item.joined == false) {
-                            button = '<button onclick="hideButton(this)" name="add-to-chat" id="add-to-chat" class="request-btn btn btn-sm btn-primary ml-2" type="submit" value="' + item.user_id + '">Add To Chat</button>';
+
+            if(friendsRequestsObj != null) {
+                if(previousFriendsRequestsObj.length != friendsRequestsObj.length) {
+                    reloadFriendsList = true;
+                }
+            }
+
+            if(reloadFriendsList == true) {
+
+                if(friendsRequestsObj != null) {
+
+                    friendsRequestsObj.forEach(myFunction4);
+                    function myFunction4(item, index) {
+                        friend_requests += '<form class="list-group-item" method="post">' +
+                        '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                        '<h6>Request Pending</h6>' +
+                        '<span class="image-cropper profile-img">' +
+                        '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                        '</span>' +
+                        '<span class="profile-username">' + item.name + '</span>' +
+                        '</a>' +
+                        '<br><br>' +
+                        '<button onclick="hideButton(this)" name="declineBtn" class="request-btn btn btn-sm btn-danger ml-2" type="submit" value="' + item.id + '">Decline</button>' +
+                        '<button onclick="hideButton(this)" name="acceptBtn" class="request-btn btn btn-sm btn-success" type="sumbit" value="' + item.id + '">Accept</button>' +
+                        '</form>'
+                    }
+                }
+
+                if(friendsListObj != null) {
+                    friendsListObj.forEach(myFunction3);
+                    function myFunction3(item, index) {
+                    
+                        friends_list += '<li class="list-group-item" method="post" name="add-to-chat-form" value="">' +
+                        '<a href="/profile/user/' + item.name + '" class="link-unstyled">' +
+                        '<span class="image-cropper profile-img">' +
+                        '<img class="profile-pic" src="' + item.image  + '" alt="' + item.image  + ' width="50" height="50">' +
+                        '</span>' +
+                        '<span class="profile-username">' +
+                        item.name +
+                        '</span>' +
+                        '</a>' +
+                        '<br>';
+                        if(chatGroupMemberObj != false) {
+                            if(item.joined == false) {
+                                button = '<button onclick="hideButton(this)" name="add-to-chat" id="add-to-chat" class="request-btn btn btn-sm btn-primary ml-2" type="submit" value="' + item.user_id + '">Add To Chat</button>';
+                            }
+                            else {
+                                button = '';
+                            }
                         }
                         else {
                             button = '';
                         }
-                    }
-                    else {
-                        button = '';
-                    }
-                         
-                    friends_list += button += '</li>';
-                }
-                $("#friends-list").html(friends_list);
-            }
 
-            if(friendsListObj != null && friendsRequestsObj != null) {
-                $("#friends-list").html(friend_requests += friends_list);
-            }
-            else if(friendsListObj == null && friendsRequestsObj != null) {
-                $("#friends-list").html(friend_requests += '<li class="list-group-item">Chatting is best enjoyed with friends</li>');
-            }
-            else if(friendsListObj != null && friendsRequestsObj == null) {
-                $("#friends-list").html(friends_list);
-            }
-            else if(friendsListObj == null && friendsRequestsObj == null) {
-                $("#friends-list").html('<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                        friends_list += button += '</li>';
+                    }
+                }
+
+                if(friendsListObj != null && friendsRequestsObj != null) {
+                    $("#friends-list").html(friend_requests += friends_list);
+                }
+                else if(friendsListObj == null && friendsRequestsObj != null) {
+                    $("#friends-list").html(friend_requests += '<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                }
+                else if(friendsListObj != null && friendsRequestsObj == null) {
+                    $("#friends-list").html(friends_list);
+                }
+                else if(friendsListObj == null && friendsRequestsObj == null) {
+                    $("#friends-list").html('<li class="list-group-item">Chatting is best enjoyed with friends</li>');
+                }
+
+                if(friendsListObj != null)
+                    previousFriendsListObj = friendsListObj;
+
+                if(friendsRequestsObj != null)
+                    previousFriendsRequestsObj = friendsRequestsObj;
+
+                reloadFriendsList = false;
             }    
         }
     });

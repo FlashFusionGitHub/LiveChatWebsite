@@ -214,37 +214,22 @@ class home extends Controller {
 
             $remove_from_chat = json_decode($_REQUEST['remove_user_from_chat']);
 
-            $this->model('Friend');
-
-            $friend = $this->model->alreadyFriends($userid, $remove_from_chat->user_id);
-
             $this->model('ChatGroupMember');
 
-            $member = $this->model->getChatGroupMember($userid, $remove_from_chat->group_id);
+            $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
 
-            if($friend == true && $member == true) {
+            $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
 
-                $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
+            $this->model('User');
 
-                $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
+            foreach($group_members as $key => $gm) {
 
-                $this->model('User');
-
-                foreach($group_members as $key => $gm) {
-
-                    $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
-                }
-
-                echo json_encode(["lobby-list" => $group_members]);
-
-                return;
+                $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
             }
-            else {
 
-                echo json_encode(["lobby-list" => null]);
+            echo json_encode(["lobby-list" => $group_members]);
 
-                return;
-            }
+            return;
 
         }
 
