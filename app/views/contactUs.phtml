@@ -1,10 +1,18 @@
+<div>
+  <?php
+    if(!empty($_GET['message-sent']) == true) {
+      echo '<b>Your feedback is important to us, we will get back to you shortly</b>';
+    }
+  ?>
+</div>
+
 <div class="form d-flex justify-content-center" name="contactUsForm" action="contactUS" method="post">
-  <form class="contact-us-form">
+  <form method="post" class="contact-us-form">
       <h3 class="form-heading">Contact us</h3>
       <div class="form-group shadow-textarea">
-          <textarea class="form-control z-depth-1" name="" id="" cols="30" rows="10" placeholder="What's on your mind?"></textarea>
+          <textarea class="form-control z-depth-1" name="message" cols="30" rows="10" placeholder="What's on your mind?"></textarea>
       </div>
-      <input class="input" type="text" placeholder="email"/>
-      <button class="contact-us-button">send</button>
+      <input name="email" class="input" type="text" placeholder="email"/>
+      <button type="submit" class="btn-success" name="contact-us">send</button>
   </form>
 </div>
