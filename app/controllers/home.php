@@ -216,21 +216,25 @@ class home extends Controller {
 
             $this->model('ChatGroupMember');
 
-            $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
+            if($this->model->getChatGroupMember($userid, $remove_from_chat->group_id) && $this->model->getChatGroupMember($remove_from_chat->user_id, $remove_from_chat->group_id)) {
 
-            $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
+                $this->model->removeChatGroupMember($remove_from_chat->group_id, $remove_from_chat->user_id);
 
-            $this->model('User');
+                $group_members = $this->model->getChatGroupMembers($remove_from_chat->group_id);
 
-            foreach($group_members as $key => $gm) {
+                $this->model('User');
 
-                $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                foreach($group_members as $key => $gm) {
+
+                    $group_members[$key]["username"] = $this->model->getUser($gm['user_id'])[0]['username'];
+                }
+
+                echo json_encode(["lobby-list" => $group_members]);
+
+                return;
             }
 
-            echo json_encode(["lobby-list" => $group_members]);
-
             return;
-
         }
 
         if(isset($_REQUEST['leave-chat-group'])) {

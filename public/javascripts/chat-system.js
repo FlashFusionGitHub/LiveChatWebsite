@@ -19,8 +19,7 @@ $(document).on('click', 'button[id="add-to-chat"]', function() {
         success: function(result) {
 
             if(result != null) {
-
-                loadFriendsList();
+                reloadFriendsList = true;
             }
         }
     });
@@ -34,20 +33,9 @@ $(document).on('click', 'button[id="remove-from-chat"]', function() {
     $.ajax ({
         url: "/home/index/?remove_user_from_chat="+ JSON.stringify(remove_from_chat_array),
         success: function(result) {
-
-            if(result != null) {
-                var lobby_list = '';
-                var lobby_members_list = JSON.parse(result)["lobby-list"];
-                lobby_members_list.forEach(lobbyMemberList);
-                function lobbyMemberList(item, index) {
-                    lobby_list += 
-                    '<li class="members-list-item">' +
-                    item.username +
-                    '</li>'
-                }
-                $("#lobby-members-list").html(lobby_list);
-                loadFriendsList();
-            }
+            
+            reloadLobbyList = true;
+            reloadFriendsList = true;
         }      
     });
 });
@@ -124,6 +112,7 @@ $(document).on('click', 'button[id="leave-chat-group-btn"]', function() {
         }
     });
 });
+
 function loadChatWindow() {
     $.ajax({
         url: "/home/index/?messages="+ group_id,
