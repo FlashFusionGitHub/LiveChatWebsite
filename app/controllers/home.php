@@ -107,6 +107,8 @@ class home extends Controller {
 
                 $this->model->createChatGroupMember($group_chat[count($group_chat) - 1]['id'], $userid);
             }
+
+            header('Location:' . $_SERVER['REQUEST_URI']);
         }
 
         if(isset($_REQUEST['group_chat'])) {
