@@ -109,6 +109,8 @@ $(document).on('click', 'button[id="leave-chat-group-btn"]', function() {
     $.ajax ({
         url: "/home/index/?leave-chat-group="+ this.value,
         success: function(result) {
+            if(result != null)
+                reloadFriendsList = true;
         }
     });
 });
